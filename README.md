@@ -21,12 +21,14 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
-# start daemon
-SpoonDaemon.new('start', 'path/to/my/script.rb', 'tmp/pids')
-
-# stop daemon
-SpoonDaemon.new('stop', 'path/to/my/script.rb', 'tmp/pids')
+SpoonDaemon::Runner.new('path/to/my/script.rb', cmd, options)
 ```
+
+Where cmd is 'start', 'stop' or 'restart'
+
+And options are:
+ * `pid_dir`: where to create the PID file
+
 
 ## Contributing
 

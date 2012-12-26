@@ -9,6 +9,7 @@ Gem::Specification.new do |gem|
   gem.authors       = ["Emilien Taque"]
   gem.email         = ["e.taque@gmail.com"]
   gem.description   = %q{Daemon tool for JRuby based on Spoon.}
+  gem.summary       = %q{Daemon tool for JRuby based on Spoon.}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
