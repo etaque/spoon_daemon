@@ -24,10 +24,9 @@ Or install it yourself as:
 SpoonDaemon::Runner.new('path/to/my/script.rb', cmd, options)
 ```
 
-Where cmd is 'start', 'stop' or 'restart'
-
-And options are:
- * `pid_dir`: where to create the PID file
+Where cmd is one of `start`, `stop` or `restart`, and options are:
+ * `:pid_dir`: where to create the PID file
+ * `:name`: process name, used for the PID filename
 
 
 ## Contributing
