@@ -1,4 +1,5 @@
 require "spoon"
+require "timeout"
 
 require "spoon_daemon/version"
 
@@ -9,8 +10,10 @@ module SpoonDaemon
 
       @pid_dir = options[:pid_dir] || '.'
       @name = options[:name] || File.basename(script)
+      @timeout = options[:timeout] || 10
 
       @pid_path = File.join(@pid_dir, "#{@name}.pid")
+      @pid = get_pid
 
       case cmd
       when 'start'
@@ -51,29 +54,38 @@ module SpoonDaemon
     def remove_pidfile
       File.unlink(@pid_path)
     rescue => e
-      STDERR.puts "ERROR: Unable to unlink #{path}:\n\t" +
+      STDERR.puts "ERROR: Unable to unlink #{@pid_path}:\n\t" +
         "(#{e.class}) #{e.message}"
       exit
     end
 
     def process_exists?
-      pid = get_pid
-      return false unless pid
-      Process.kill(0, pid)
+      return false unless @pid
+      Process.kill(0, @pid)
       true
     rescue Errno::ESRCH, TypeError # "PID is NOT running or is zombied
       false
     rescue Errno::EPERM
-      STDERR.puts "No permission to query #{pid}!";
+      STDERR.puts "No permission to query #{@pid}!";
       false
     end
 
     def stop
-      pid = get_pid
-      Process.kill("TERM", pid)
+      abort "No process running, nothing to stop"  unless process_exists?
+
+      begin
+        STDOUT.puts "Stopping process #{@pid}..."
+        Timeout.timeout(@timeout) do
+          Process.kill("TERM", @pid)
+          sleep 1 while process_exists?
+        end
+      rescue Timeout::Error
+        STDERR.puts "Graceful shutdown timeout, sending KILL signal"
+        Process.kill("KILL", @pid)
+      end
+
       remove_pidfile
-    rescue Errno::ESRCH
-      abort "No process to kill"
+      STDOUT.puts "Process stopped."
     end
 
     def start
