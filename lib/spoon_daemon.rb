@@ -82,6 +82,7 @@ module SpoonDaemon
       rescue Timeout::Error
         STDERR.puts "Graceful shutdown timeout, sending KILL signal"
         Process.kill("KILL", @pid)
+        sleep 0.1 while process_exists?
       end
 
       remove_pidfile
